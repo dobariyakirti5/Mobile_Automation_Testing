@@ -1,0 +1,43 @@
+Task 1: Swipe left-to-right on a product image carousel:-
+
+
+import java.time.Duration;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.PointerInput;
+import org.openqa.selenium.interactions.Sequence;
+import io.appium.java_client.android.AndroidDriver;
+
+public class CarouselSwipeTest {
+    public static void swipeCarousel(AndroidDriver driver) {
+
+        WebElement carousel = driver.findElement(
+            By.id("com.example.shop:id/imageCarousel")
+        );
+
+        int startX = carousel.getRect().getX() + 30;
+        int endX = carousel.getRect().getX()
+            + carousel.getRect().getWidth() - 30;
+        int y = carousel.getRect().getY()
+            + carousel.getRect().getHeight() / 2;
+
+        PointerInput finger = new PointerInput(
+            PointerInput.Kind.TOUCH, "finger");
+
+        Sequence swipe = new Sequence(finger, 0);
+        swipe.addAction(finger.createPointerMove(
+            Duration.ZERO,
+            PointerInput.Origin.viewport(), startX, y));
+        swipe.addAction(finger.createPointerDown(
+            PointerInput.MouseButton.LEFT.asArg()));
+        swipe.addAction(finger.createPointerMove(
+            Duration.ofMillis(600),
+            PointerInput.Origin.viewport(), endX, y));
+        swipe.addAction(finger.createPointerUp(
+            PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(java.util.Collections.singletonList(swipe));
+
+        System.out.println("Carousel swipe performed.");
+    }
+}
