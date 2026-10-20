@@ -1,0 +1,75 @@
+1. Select a specific date from a date picker:-
+
+import io.appium.java_client.AppiumBy;
+import io.appium.java_client.android.AndroidDriver;
+import org.openqa.selenium.WebElement;
+
+public class SelectDate {
+    public static void main(String[] args) {
+
+        // Assume driver is already initialized
+        AndroidDriver driver = /* your AndroidDriver */ null;
+
+        // Open the date picker
+        driver.findElement(
+            AppiumBy.id("com.example.foodapp:id/birthDate")
+        ).click();
+
+        // Select year
+        driver.findElement(
+            AppiumBy.id("android:id/date_picker_header_year")
+        ).click();
+
+        driver.findElement(
+            AppiumBy.androidUIAutomator(
+                "new UiSelector().text(\"2002\")"
+            )
+        ).click();
+
+        // Select month and day from the calendar
+        driver.findElement(
+            AppiumBy.id("android:id/date_picker_header_date")
+        ).click();
+
+        driver.findElement(
+            AppiumBy.androidUIAutomator(
+                "new UiSelector().text(\"15\")"
+            )
+        ).click();
+
+        // Confirm the selected date
+        driver.findElement(
+            AppiumBy.id("android:id/button1")
+        ).click();
+
+        System.out.println("Date selected successfully.");
+    }
+}
+
+
+2. Select a cuisine from a dropdown menu:-
+
+import io.appium.java_client.AppiumBy;
+import io.appium.java_client.android.AndroidDriver;
+
+public class SelectCuisine {
+    public static void main(String[] args) {
+
+        // Assume driver is already initialized
+        AndroidDriver driver = /* your AndroidDriver */ null;
+
+        // Open cuisine dropdown
+        driver.findElement(
+            AppiumBy.id("com.example.zomato:id/cuisineDropdown")
+        ).click();
+
+        // Select Indian cuisine
+        driver.findElement(
+            AppiumBy.androidUIAutomator(
+                "new UiSelector().text(\"Indian\")"
+            )
+        ).click();
+
+        System.out.println("Indian cuisine selected successfully.");
+    }
+}
