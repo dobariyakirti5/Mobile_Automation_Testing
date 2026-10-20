@@ -1,0 +1,156 @@
+
+package com.appium.practice;
+
+import java.io.File;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.remote.MutableCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.options.UiAutomator2Options;
+
+import java.time.Duration;
+
+public class MobileDeviceCloudTest {
+
+    // TASK 1, 2, 3: Real Android device, launch app, save screenshot
+    @Test
+    public void realDeviceScreenshot() throws Exception {
+
+        UiAutomator2Options options = new UiAutomator2Options();
+
+        options.setPlatformName("Android");
+        options.setAutomationName("UiAutomator2");
+        options.setDeviceName("My Android Phone");
+        options.setUdid("REPLACE_WITH_ADB_DEVICE_ID");
+
+        options.setAppPackage("REPLACE_WITH_ZOMATO_PACKAGE");
+        options.setAppActivity("REPLACE_WITH_ZOMATO_ACTIVITY");
+
+        AndroidDriver driver = new AndroidDriver(
+            new URL("http://127.0.0.1:4723"), options);
+
+        try {
+            WebDriverWait wait =
+                new WebDriverWait(driver, Duration.ofSeconds(30));
+
+            // Replace with a real home-screen element ID.
+            wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.id("REPLACE_WITH_HOME_SCREEN_RESOURCE_ID")));
+
+            File screenshot =
+                driver.getScreenshotAs(OutputType.FILE);
+
+            Path destination = Paths.get(
+                System.getProperty("user.dir"),
+                "zomato_home_screen.png");
+
+            Files.copy(screenshot.toPath(), destination);
+
+            Assert.assertTrue(Files.exists(destination),
+                "Screenshot should be saved.");
+
+            System.out.println("Screenshot saved: "
+                + destination.toAbsolutePath());
+
+        } finally {
+            driver.quit();
+        }
+    }
+
+    // TASK 4: Run app on BrowserStack
+    @Test
+    public void browserStackTest() throws Exception {
+
+        String username = System.getenv("BROWSERSTACK_USERNAME");
+        String accessKey = System.getenv("BROWSERSTACK_ACCESS_KEY");
+
+        if (username == null || accessKey == null) {
+            throw new IllegalStateException(
+                "Set BrowserStack credentials as environment variables.");
+        }
+
+        MutableCapabilities caps = new MutableCapabilities();
+        caps.setCapability("platformName", "Android");
+        caps.setCapability("app", "bs://YOUR_UPLOADED_APP_ID");
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("userName", username);
+        options.put("accessKey", accessKey);
+        options.put("deviceName", "Google Pixel 8");
+        options.put("platformVersion", "14.0");
+        options.put("projectName", "Appium Practice");
+        options.put("buildName", "Cloud Test");
+        options.put("sessionName", "App Launch Test");
+
+        caps.setCapability("bstack:options", options);
+
+        RemoteWebDriver driver = new RemoteWebDriver(
+            new URL("https://hub.browserstack.com/wd/hub"), caps);
+
+        try {
+            System.out.println("BrowserStack session: "
+                + driver.getSessionId());
+
+            // Add a real app-screen assertion here.
+            Assert.assertNotNull(driver.getSessionId());
+
+        } finally {
+            driver.quit();
+        }
+    }
+
+    // TASK 5: Run app on LambdaTest using generated capabilities
+    @Test
+    public void lambdaTest() throws Exception {
+
+        String username = System.getenv("LAMBDATEST_USERNAME");
+        String accessKey = System.getenv("LAMBDATEST_ACCESS_KEY");
+
+        if (username == null || accessKey == null) {
+            throw new IllegalStateException(
+                "Set LambdaTest credentials as environment variables.");
+        }
+
+        MutableCapabilities caps = new MutableCapabilities();
+        caps.setCapability("platformName", "Android");
+        caps.setCapability("appium:automationName", "UiAutomator2");
+        caps.setCapability("appium:deviceName", "Galaxy S21");
+        caps.setCapability("appium:platformVersion", "11");
+        caps.setCapability("appium:app", "lt://YOUR_UPLOADED_APP_ID");
+
+        Map<String, Object> options = new HashMap<>();
+        options.put("username", username);
+        options.put("accessKey", accessKey);
+        options.put("name", "Galaxy S21 Appium Test");
+        options.put("build", "Mobile Automation Practice");
+        options.put("isRealMobile", true);
+
+        caps.setCapability("lt:options", options);
+
+        RemoteWebDriver driver = new RemoteWebDriver(
+            new URL("https://mobile-hub.lambdatest.com/wd/hub"), caps);
+
+        try {
+            System.out.println("LambdaTest session: "
+                + driver.getSessionId());
+
+            Assert.assertNotNull(driver.getSessionId());
+
+        } finally {
+            driver.quit();
+        }
+    }
+}
