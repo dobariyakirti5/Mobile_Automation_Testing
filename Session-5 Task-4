@@ -1,0 +1,36 @@
+Task 4: Long-press a playlist item and check “Add to Queue”:-
+
+
+import java.util.HashMap;
+import java.util.Map;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import io.appium.java_client.android.AndroidDriver;
+
+public class PlaylistLongPressTest {
+    public static void checkQueueOption(AndroidDriver driver) {
+
+        WebElement playlistItem = driver.findElement(
+            By.id("com.example.music:id/playlistItem")
+        );
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("elementId",
+            ((io.appium.java_client.remote.
+            RemoteWebElement) playlistItem).getId());
+        params.put("duration", 1500);
+
+        driver.executeScript(
+            "mobile: longClickGesture", params);
+
+        WebElement addToQueue = driver.findElement(
+            By.xpath("//*[@text='Add to Queue']")
+        );
+
+        if (addToQueue.isEnabled()) {
+            System.out.println("PASS: Add to Queue is enabled.");
+        } else {
+            System.out.println("FAIL: Add to Queue is disabled.");
+        }
+    }
+}
