@@ -1,0 +1,39 @@
+Task 3: Drag a playlist item from position 3 to position 1:-
+
+
+import java.time.Duration;
+import java.util.Collections;
+import org.openqa.selenium.interactions.PointerInput;
+import org.openqa.selenium.interactions.Sequence;
+import io.appium.java_client.android.AndroidDriver;
+
+public class PlaylistDragDropTest {
+    public static void reorderPlaylist(AndroidDriver driver) {
+
+        // Example coordinates; adjust for your app layout.
+        int startX = 300;
+        int item3Y = 700;
+        int item1Y = 300;
+
+        PointerInput finger = new PointerInput(
+            PointerInput.Kind.TOUCH, "finger");
+
+        Sequence drag = new Sequence(finger, 0);
+        drag.addAction(finger.createPointerMove(
+            Duration.ZERO,
+            PointerInput.Origin.viewport(), startX, item3Y));
+        drag.addAction(finger.createPointerDown(
+            PointerInput.MouseButton.LEFT.asArg()));
+
+        drag.addAction(finger.createPointerMove(
+            Duration.ofMillis(800),
+            PointerInput.Origin.viewport(), startX, item1Y));
+
+        drag.addAction(finger.createPointerUp(
+            PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(Collections.singletonList(drag));
+
+        System.out.println("Playlist drag-and-drop performed.");
+    }
+}
