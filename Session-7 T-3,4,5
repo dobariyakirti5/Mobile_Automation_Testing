@@ -1,0 +1,150 @@
+3. Read a Toast message after successful login:-
+
+import io.appium.java_client.AppiumBy;
+import io.appium.java_client.android.AndroidDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.NoSuchElementException;
+
+public class ReadToast {
+    public static void main(String[] args) {
+
+        // Assume driver is already initialized
+        AndroidDriver driver = /* your AndroidDriver */ null;
+
+        // Enter valid login details and tap Login
+        driver.findElement(
+            AppiumBy.id("com.example.paytm:id/username")
+        ).sendKeys("testuser");
+
+        driver.findElement(
+            AppiumBy.id("com.example.paytm:id/password")
+        ).sendKeys("Test@123");
+
+        driver.findElement(
+            AppiumBy.id("com.example.paytm:id/loginButton")
+        ).click();
+
+        // Read Toast message
+        try {
+            WebElement toast = driver.findElement(
+                AppiumBy.xpath("//android.widget.Toast")
+            );
+
+            String message = toast.getText();
+            System.out.println("Toast Message: " + message);
+
+        } catch (NoSuchElementException e) {
+            System.out.println("Toast message was not found.");
+        }
+    }
+}
+
+4. Switch from Native App to WebView:-
+
+import io.appium.java_client.AppiumBy;
+import io.appium.java_client.android.AndroidDriver;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+import java.util.Set;
+
+public class VerifyBookTickets {
+    public static void main(String[] args) {
+
+        // Assume driver is already initialized
+        AndroidDriver driver = /* your AndroidDriver */ null;
+
+        // Display available contexts
+        Set<String> contexts = driver.getContextHandles();
+
+        for (String context : contexts) {
+            System.out.println("Available context: " + context);
+        }
+
+        // Switch to WebView
+        boolean webViewFound = false;
+
+        for (String context : contexts) {
+            if (context.startsWith("WEBVIEW")) {
+                driver.context(context);
+                webViewFound = true;
+                break;
+            }
+        }
+
+        if (webViewFound) {
+            WebDriverWait wait = new WebDriverWait(
+                driver, Duration.ofSeconds(10)
+            );
+
+            WebElement button = wait.until(
+                d -> d.findElement(
+                    By.xpath("//button[normalize-space()='Book Tickets']")
+                )
+            );
+
+            if (button.isDisplayed()) {
+                System.out.println(
+                    "Book Tickets button is displayed."
+                );
+            }
+        } else {
+            System.out.println("WebView context not found.");
+        }
+
+        // Switch back to native app if required
+        driver.context("NATIVE_APP");
+    }
+}
+
+5. Open the notification panel and verify a notification:-
+
+import io.appium.java_client.AppiumBy;
+import io.appium.java_client.android.AndroidDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
+
+public class VerifyOrderNotification {
+    public static void main(String[] args) {
+
+        // Assume driver is already initialized
+        AndroidDriver driver = /* your AndroidDriver */ null;
+
+        // Place a mock order before this step
+        // Example:
+        // driver.findElement(
+        //     AppiumBy.id("com.example.swiggy:id/placeOrder")
+        // ).click();
+
+        // Open Android notification panel
+        driver.openNotifications();
+
+        try {
+            WebDriverWait wait = new WebDriverWait(
+                driver, Duration.ofSeconds(10)
+            );
+
+            WebElement notification = wait.until(
+                d -> d.findElement(
+                    AppiumBy.androidUIAutomator(
+                        "new UiSelector().textContains(\"Order Delivered\")"
+                    )
+                )
+            );
+
+            if (notification.isDisplayed()) {
+                System.out.println(
+                    "Notification found: " + notification.getText()
+                );
+            }
+
+        } catch (TimeoutException e) {
+            System.out.println(
+                "Order Delivered notification was not found."
+            );
+        }
+    }
+}
