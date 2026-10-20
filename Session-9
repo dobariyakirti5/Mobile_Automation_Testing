@@ -1,0 +1,124 @@
+
+package com.appium.tests;
+
+import java.net.URL;
+import java.time.Duration;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
+import org.testng.annotations.Test;
+
+import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.options.UiAutomator2Options;
+
+public class AppiumTestNG {
+
+    private AndroidDriver driver;
+
+    // Setup: Start a fresh driver before every test
+    @BeforeMethod
+    @Parameters({"udid", "appPackage", "appActivity", "systemPort"})
+    public void setUp(String udid, String appPackage,
+                      String appActivity, String systemPort)
+                      throws Exception {
+
+        UiAutomator2Options options = new UiAutomator2Options();
+        options.setUdid(udid);
+        options.setDeviceName(udid);
+        options.setAutomationName("UiAutomator2");
+        options.setAppPackage(appPackage);
+        options.setAppActivity(appActivity);
+        options.setSystemPort(Integer.parseInt(systemPort));
+
+        driver = new AndroidDriver(
+            new URL("http://127.0.0.1:4723"), options);
+
+        // Avoid mixing implicit and explicit waits
+        driver.manage().timeouts()
+              .implicitlyWait(Duration.ofSeconds(0));
+    }
+
+    // Task 1: Launch IRCTC and verify its home screen
+    @Test
+    @Parameters({"irctcHomeId"})
+    public void launchIRCTC(String irctcHomeId) {
+
+        WebDriverWait wait =
+            new WebDriverWait(driver, Duration.ofSeconds(30));
+
+        WebElement home = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(
+                By.id(irctcHomeId)));
+
+        Assert.assertTrue(home.isDisplayed(),
+            "IRCTC home screen should be displayed.");
+    }
+
+    // Task 2: Flipkart-style login test
+    @Test
+    @Parameters({"usernameId", "passwordId", "loginButtonId", "homeScreenId"})
+    public void verifyLogin(String usernameId, String passwordId,
+                            String loginButtonId, String homeScreenId) {
+
+        WebDriverWait wait =
+            new WebDriverWait(driver, Duration.ofSeconds(20));
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+            By.id(usernameId))).sendKeys("testuser@example.com");
+
+        driver.findElement(By.id(passwordId))
+              .sendKeys("TestPassword123");
+
+        driver.findElement(By.id(loginButtonId)).click();
+
+        WebElement home = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(
+                By.id(homeScreenId)));
+
+        Assert.assertTrue(home.isDisplayed(),
+            "Home screen should appear after successful login.");
+    }
+
+    // Task 3: Zomato-style restaurant search test
+    @Test
+    @Parameters({"searchBoxId", "restaurantResultId"})
+    public void verifyRestaurantSearch(String searchBoxId,
+                                       String restaurantResultId) {
+
+        WebDriverWait wait =
+            new WebDriverWait(driver, Duration.ofSeconds(20));
+
+        String expectedRestaurant = "Domino's Pizza";
+
+        WebElement searchBox = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(
+                By.id(searchBoxId)));
+
+        searchBox.click();
+        searchBox.sendKeys(expectedRestaurant);
+
+        WebElement result = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(
+                By.id(restaurantResultId)));
+
+        Assert.assertTrue(
+            result.getText().toLowerCase().contains(
+                expectedRestaurant.toLowerCase()),
+            "Expected restaurant result was not found.");
+    }
+
+    // Teardown: Close the driver after every test
+    @AfterMethod(alwaysRun = true)
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+            driver = null;
+        }
+    }
+}
