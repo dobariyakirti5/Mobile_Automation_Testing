@@ -1,0 +1,5 @@
+Task 2: Inspect username and password attributes:-
+
+Element	Resource-id	Text	Content-desc
+Username field	com.example.app:id/username 	Empty or hint text	  Username
+Password field	com.example.app:id/password 	Empty or hint text	  Password
