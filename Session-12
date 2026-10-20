@@ -1,0 +1,492 @@
+2. pom.xml:-
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.shop</groupId>
+    <artifactId>ShoppingApp</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.release>17</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.appium</groupId>
+            <artifactId>java-client</artifactId>
+            <version>9.4.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>7.11.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+                <configuration>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+3. testng.xml:-
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<suite name="Shopping App Test Suite" verbose="2">
+    <test name="Shopping App Tests">
+        <classes>
+            <class name="com.shop.ShoppingAppTest">
+                <methods>
+                    <include name="homeScreenIsDisplayed"/>
+                    <include name="loginWithDifferentCredentials"/>
+                    <include name="searchProduct"/>
+                    <include name="addFirstResultToCart"/>
+                    <include name="logout"/>
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>
+
+4. ShoppingAppTest.java:-
+
+package com.shop;
+
+import io.appium.java_client.AppiumBy;
+import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.options.UiAutomator2Options;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.PointerInput;
+import org.openqa.selenium.interactions.Sequence;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import org.testng.Assert;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Arrays;
+
+public class ShoppingAppTest {
+
+    private AndroidDriver driver;
+    private WebDriverWait wait;
+
+    private static final String APP_PATH =
+            System.getProperty("appPath", "apps/FlipkartStyleApp.apk");
+
+    private static final String VALID_USER =
+            System.getProperty("testUsername", "valid.user@example.test");
+
+    private static final String VALID_PASSWORD =
+            System.getProperty("testPassword", "TestPass123");
+
+    // Replace these example locators with your app's real locators.
+    private static final By HOME_TITLE =
+            AppiumBy.id("com.example.shop:id/home_title");
+
+    private static final By LOGIN_BUTTON =
+            AppiumBy.id("com.example.shop:id/login_button");
+
+    private static final By USERNAME =
+            AppiumBy.id("com.example.shop:id/username");
+
+    private static final By PASSWORD =
+            AppiumBy.id("com.example.shop:id/password");
+
+    private static final By SUBMIT_LOGIN =
+            AppiumBy.id("com.example.shop:id/submit_login");
+
+    private static final By LOGIN_SUCCESS =
+            AppiumBy.id("com.example.shop:id/profile_name");
+
+    private static final By LOGIN_ERROR =
+            AppiumBy.id("com.example.shop:id/login_error");
+
+    private static final By SEARCH_BOX =
+            AppiumBy.id("com.example.shop:id/search_box");
+
+    private static final By SEARCH_RESULT =
+            AppiumBy.id("com.example.shop:id/product_title");
+
+    private static final By ADD_TO_CART =
+            AppiumBy.id("com.example.shop:id/add_to_cart");
+
+    private static final By CART_COUNT =
+            AppiumBy.id("com.example.shop:id/cart_count");
+
+    private static final By PROFILE_BUTTON =
+            AppiumBy.id("com.example.shop:id/profile_button");
+
+    private static final By LOGOUT_BUTTON =
+            AppiumBy.id("com.example.shop:id/logout_button");
+
+    // Start a fresh Appium session before each test.
+    @BeforeMethod
+    public void setUp() throws Exception {
+
+        log("Starting Appium session");
+
+        UiAutomator2Options options = new UiAutomator2Options();
+
+        options.setDeviceName(
+                System.getProperty("deviceName", "Android Device"));
+
+        String udid = System.getProperty("udid");
+
+        if (udid != null && !udid.isBlank()) {
+            options.setUdid(udid);
+        }
+
+        options.setApp(APP_PATH);
+        options.setAutomationName("UiAutomator2");
+
+        driver = new AndroidDriver(
+                new java.net.URL("http://127.0.0.1:4723"),
+                options);
+
+        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        log("App launched successfully");
+    }
+
+    // Test 1: Verify that the home screen is displayed.
+    @Test(priority = 1)
+    public void homeScreenIsDisplayed() {
+
+        Assert.assertTrue(
+                wait.until(
+                        ExpectedConditions.visibilityOfElementLocated(
+                                HOME_TITLE)).isDisplayed(),
+                "Home screen should be displayed");
+
+        log("Home screen verification passed");
+    }
+
+    // Test 2: Data-driven login test.
+    @DataProvider(name = "loginData")
+    public Object[][] loginData() {
+
+        return new Object[][] {
+            { "valid.user@example.test", "TestPass123", true },
+            { "invalid.user@example.test", "WrongPass123", false }
+        };
+    }
+
+    @Test(
+        priority = 2,
+        dataProvider = "loginData"
+    )
+    public void loginWithDifferentCredentials(
+            String username,
+            String password,
+            boolean expectedSuccess) {
+
+        HomePage home = new HomePage();
+        LoginPage login = new LoginPage();
+
+        home.openLogin();
+        login.login(username, password);
+
+        if (expectedSuccess) {
+            Assert.assertTrue(
+                    login.isLoginSuccessful(),
+                    "Valid credentials should log in successfully");
+
+            log("Valid login test passed");
+        } else {
+            Assert.assertTrue(
+                    login.isLoginErrorDisplayed(),
+                    "Invalid credentials should show an error");
+
+            log("Invalid login test passed");
+        }
+    }
+
+    // Test 3: Search for Bluetooth headphones.
+    @Test(priority = 3)
+    public void searchProduct() {
+
+        loginWithValidUser();
+
+        HomePage home = new HomePage();
+        home.search("Bluetooth headphones");
+
+        Assert.assertTrue(
+                wait.until(
+                        ExpectedConditions.visibilityOfElementLocated(
+                                SEARCH_RESULT)).isDisplayed(),
+                "Search results should be displayed");
+
+        log("Product search passed");
+    }
+
+    // Test 4: Add the first search result to the cart.
+    @Test(priority = 4)
+    public void addFirstResultToCart() {
+
+        loginWithValidUser();
+
+        HomePage home = new HomePage();
+        ProductPage product = new ProductPage();
+
+        home.search("Bluetooth headphones");
+
+        WebElement firstResult = wait.until(
+                ExpectedConditions.elementToBeClickable(SEARCH_RESULT));
+
+        // Tap the first search result.
+        firstResult.click();
+
+        wait.until(
+                ExpectedConditions.elementToBeClickable(ADD_TO_CART)).click();
+
+        log("Clicked Add to Cart");
+
+        String cartText = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(CART_COUNT))
+                .getText();
+
+        Assert.assertTrue(
+                cartText.contains("1"),
+                "Cart count should show 1. Actual: " + cartText);
+
+        log("Cart count verification passed");
+
+        // Example touch action: swipe up to view more content.
+        product.swipeUp();
+        log("Swipe-up touch action completed");
+    }
+
+    // Test 5: Log in, then log out.
+    @Test(priority = 5)
+    public void logout() {
+
+        loginWithValidUser();
+
+        wait.until(
+                ExpectedConditions.elementToBeClickable(PROFILE_BUTTON))
+                .click();
+
+        wait.until(
+                ExpectedConditions.elementToBeClickable(LOGOUT_BUTTON))
+                .click();
+
+        Assert.assertTrue(
+                wait.until(
+                        ExpectedConditions.visibilityOfElementLocated(
+                                LOGIN_BUTTON)).isDisplayed(),
+                "Login button should appear after logout");
+
+        log("Logout test passed");
+    }
+
+    // Helper method used by independent search/cart/logout tests.
+    private void loginWithValidUser() {
+
+        HomePage home = new HomePage();
+        LoginPage login = new LoginPage();
+
+        home.openLogin();
+        login.login(VALID_USER, VALID_PASSWORD);
+
+        Assert.assertTrue(
+                login.isLoginSuccessful(),
+                "Login failed. Check your test credentials and locators");
+
+        log("Logged in with test account");
+    }
+
+    // POM: Home page.
+    private class HomePage {
+
+        void openLogin() {
+            wait.until(
+                    ExpectedConditions.elementToBeClickable(LOGIN_BUTTON))
+                    .click();
+
+            log("Opened login screen");
+        }
+
+        void search(String productName) {
+
+            WebElement search = wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(SEARCH_BOX));
+
+            search.clear();
+            search.sendKeys(productName);
+            search.sendKeys("\n");
+
+            log("Searched for: " + productName);
+        }
+    }
+
+    // POM: Login page.
+    private class LoginPage {
+
+        void login(String username, String password) {
+
+            wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(USERNAME))
+                    .sendKeys(username);
+
+            wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(PASSWORD))
+                    .sendKeys(password);
+
+            wait.until(
+                    ExpectedConditions.elementToBeClickable(SUBMIT_LOGIN))
+                    .click();
+
+            log("Submitted login form");
+        }
+
+        boolean isLoginSuccessful() {
+            return isDisplayed(LOGIN_SUCCESS);
+        }
+
+        boolean isLoginErrorDisplayed() {
+            return isDisplayed(LOGIN_ERROR);
+        }
+    }
+
+    // POM: Product page and touch action.
+    private class ProductPage {
+
+        void swipeUp() {
+
+            int width = driver.manage().window().getSize().width;
+            int height = driver.manage().window().getSize().height;
+
+            PointerInput finger =
+                    new PointerInput(PointerInput.Kind.TOUCH, "finger");
+
+            Sequence swipe = new Sequence(finger, 1);
+
+            swipe.addAction(finger.createPointerMove(
+                    Duration.ZERO,
+                    PointerInput.Origin.viewport(),
+                    width / 2,
+                    (int) (height * 0.80)));
+
+            swipe.addAction(finger.createPointerDown(
+                    PointerInput.MouseButton.LEFT.asArg()));
+
+            swipe.addAction(finger.createPointerMove(
+                    Duration.ofMillis(600),
+                    PointerInput.Origin.viewport(),
+                    width / 2,
+                    (int) (height * 0.30)));
+
+            swipe.addAction(finger.createPointerUp(
+                    PointerInput.MouseButton.LEFT.asArg()));
+
+            driver.perform(Arrays.asList(swipe));
+        }
+    }
+
+    // Check whether an element is visible.
+    private boolean isDisplayed(By locator) {
+
+        try {
+            return driver.findElement(locator).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // Log major test steps to a file.
+    private void log(String message) {
+
+        try {
+            Path logFile = Path.of("logs", "test-steps.log");
+
+            Files.createDirectories(logFile.getParent());
+
+            String entry = Instant.now() + " | " + message
+                    + System.lineSeparator();
+
+            Files.writeString(
+                    logFile,
+                    entry,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.APPEND);
+
+        } catch (IOException e) {
+            System.err.println("Could not write log: " + e.getMessage());
+        }
+    }
+
+    // Capture a unique screenshot when a test fails.
+    @AfterMethod(alwaysRun = true)
+    public void tearDown(ITestResult result) {
+
+        try {
+            if (driver != null && !result.isSuccess()) {
+
+                Path screenshotFolder = Path.of("screenshots");
+                Files.createDirectories(screenshotFolder);
+
+                String fileName =
+                        result.getMethod().getMethodName()
+                        + "_" + System.currentTimeMillis() + ".png";
+
+                Path destination = screenshotFolder.resolve(fileName);
+
+                Files.copy(
+                        ((TakesScreenshot) driver)
+                                .getScreenshotAs(OutputType.FILE)
+                                .toPath(),
+                        destination);
+
+                log("Failure screenshot saved: " + destination);
+            }
+
+            log("Test finished: " + result.getName()
+                    + " | Success: " + result.isSuccess());
+
+        } catch (Exception e) {
+            System.err.println(
+                    "Screenshot or teardown error: " + e.getMessage());
+
+        } finally {
+            if (driver != null) {
+                driver.quit();
+                driver = null;
+            }
+        }
+    }
+}
