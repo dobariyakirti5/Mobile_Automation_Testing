@@ -1,0 +1,154 @@
+package com.appium.tasks;
+
+import io.appium.java_client.AppiumBy;
+import io.appium.java_client.android.AndroidDriver;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.ElementNotInteractableException;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+
+import java.time.Duration;
+
+public class AppiumWaitTasks {
+
+    // Assume AndroidDriver is initialized before calling these methods.
+
+    // TASK 1: Implicit wait for Search button
+    public static void task1_SearchButton(AndroidDriver driver) {
+
+        driver.manage().timeouts()
+              .implicitlyWait(Duration.ofSeconds(10));
+
+        WebElement searchButton = driver.findElement(
+            AppiumBy.id("com.example.zomato:id/search")
+        );
+
+        if (searchButton.isDisplayed()) {
+            System.out.println("Task 1: Search button is displayed.");
+        } else {
+            System.out.println("Task 1: Search button is not displayed.");
+        }
+    }
+
+    // TASK 2: Explicit wait for OTP field
+    public static void task2_OTPField(AndroidDriver driver) {
+
+        WebDriverWait wait = new WebDriverWait(
+            driver, Duration.ofSeconds(15)
+        );
+
+        WebElement otpField = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(
+                AppiumBy.id("com.example.flipkart:id/otpInput")
+            )
+        );
+
+        otpField.sendKeys("123456");
+
+        System.out.println("Task 2: OTP entered successfully.");
+    }
+
+    // TASK 3: Retry Book Now up to 4 times
+    public static void task3_BookNow(AndroidDriver driver)
+            throws InterruptedException {
+
+        By bookNow = AppiumBy.id(
+            "com.example.bookmyshow:id/bookNow"
+        );
+
+        boolean clicked = false;
+
+        for (int attempt = 1; attempt <= 4; attempt++) {
+            try {
+                WebDriverWait wait = new WebDriverWait(
+                    driver, Duration.ofSeconds(2)
+                );
+
+                WebElement button = wait.until(
+                    ExpectedConditions.elementToBeClickable(bookNow)
+                );
+
+                button.click();
+                clicked = true;
+
+                System.out.println(
+                    "Task 3: Book Now clicked on attempt " + attempt
+                );
+                break;
+
+            } catch (TimeoutException |
+                     ElementNotInteractableException e) {
+
+                System.out.println(
+                    "Task 3: Attempt " + attempt + " failed."
+                );
+
+                if (attempt < 4) {
+                    Thread.sleep(2000);
+                }
+            }
+        }
+
+        if (!clicked) {
+            System.out.println(
+                "Task 3: Book Now failed after 4 attempts."
+            );
+        }
+    }
+
+    // TASK 4: Fix flaky Add to Cart test
+    public static void task4_AddToCart(AndroidDriver driver) {
+
+        WebDriverWait wait = new WebDriverWait(
+            driver, Duration.ofSeconds(20)
+        );
+
+        // Wait until Add to Cart is clickable.
+        // This reduces failures caused by slow page loading.
+        WebElement addToCart = wait.until(
+            ExpectedConditions.elementToBeClickable(
+                AppiumBy.id("com.example.myntra:id/addToCart")
+            )
+        );
+
+        addToCart.click();
+
+        System.out.println(
+            "Task 4: Add to Cart clicked successfully."
+        );
+    }
+
+    // TASK 5: Wait for payment screen and verify Pay Now
+    public static void task5_PaymentScreen(AndroidDriver driver) {
+
+        // Submit the delivery address
+        driver.findElement(
+            AppiumBy.id("com.example.swiggy:id/submitAddress")
+        ).click();
+
+        WebDriverWait wait = new WebDriverWait(
+            driver, Duration.ofSeconds(15)
+        );
+
+        // Wait until Pay Now becomes visible
+        WebElement payNow = wait.until(
+            ExpectedConditions.visibilityOfElementLocated(
+                AppiumBy.id("com.example.swiggy:id/payNow")
+            )
+        );
+
+        // Assert the button is displayed
+        Assert.assertTrue(
+            payNow.isDisplayed(),
+            "Pay Now button should be displayed."
+        );
+
+        System.out.println(
+            "Task 5: Payment screen loaded; Pay Now is displayed."
+        );
+    }
+}
