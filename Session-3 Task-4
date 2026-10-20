@@ -1,0 +1,8 @@
+Task 4: Capture the full element hierarchy and write XPath expressions:-
+
+Relationship	          XPath expression	                                                Purpose
+Element            	//*[@text='Login']	                                             Finds the Login element
+Parent           	//*[@text='Login']/..	                                            Selects the immediate parent
+Child       	   //android.widget.LinearLayout/android.widget.Button              	Finds a direct child Button
+Sibling	        //*[@text='Username']/following-sibling::*[1]	                          Finds the next sibling
+Nested element	//android.widget.LinearLayout//android.widget.Button[@text='Login']	  Finds a nested Login button
