@@ -1,0 +1,26 @@
+Task 1: Launch the Myntra APK using DesiredCapabilities:-
+
+
+import java.net.URL;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import io.appium.java_client.android.AndroidDriver;
+
+public class MyntraLaunchTest {
+    public static void main(String[] args) throws Exception {
+
+        DesiredCapabilities caps = new DesiredCapabilities();
+
+        caps.setCapability("platformName", "Android");
+        caps.setCapability("appium:automationName", "UiAutomator2");
+        caps.setCapability("appium:deviceName", "Android Device");
+        caps.setCapability("appium:app", "D:\\Apps\\myntra.apk");
+
+        AndroidDriver driver = new AndroidDriver(
+            new URL("http://127.0.0.1:4723"), caps
+        );
+
+        System.out.println("Myntra app launched successfully.");
+
+        driver.quit();
+    }
+}
