@@ -1,0 +1,24 @@
+Task 2: Scroll through a product list and tap “Wireless Earbuds”:-
+
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import io.appium.java_client.android.AndroidDriver;
+
+public class ProductScrollTest {
+    public static void findProduct(AndroidDriver driver) {
+
+        WebElement product = driver.findElement(
+            By.androidUIAutomator(
+                "new UiScrollable(new UiSelector()" +
+                ".scrollable(true))" +
+                ".scrollIntoView(new UiSelector()" +
+                ".text(\"Wireless Earbuds\"))"
+            )
+        );
+
+        product.click();
+
+        System.out.println("Wireless Earbuds selected.");
+    }
+}
