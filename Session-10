@@ -1,0 +1,189 @@
+
+package com.automation;
+
+import java.io.InputStream;
+import java.net.URL;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.options.UiAutomator2Options;
+
+public class MobileAutomationTest {
+
+    private AndroidDriver driver;
+    private Properties config;
+
+    // TASK 1: Read config.properties and initialize Appium driver
+    @BeforeMethod
+    public void setUp() throws Exception {
+
+        config = new Properties();
+
+        try (InputStream input = getClass().getClassLoader()
+                .getResourceAsStream("config.properties")) {
+
+            if (input == null) {
+                throw new RuntimeException(
+                    "config.properties file not found");
+            }
+
+            config.load(input);
+        }
+
+        UiAutomator2Options options = new UiAutomator2Options();
+
+        options.setPlatformName(config.getProperty("platformName"));
+        options.setDeviceName(config.getProperty("deviceName"));
+        options.setUdid(config.getProperty("udid"));
+        options.setAutomationName(config.getProperty("automationName"));
+        options.setAppPackage(config.getProperty("appPackage"));
+        options.setAppActivity(config.getProperty("appActivity"));
+
+        driver = new AndroidDriver(
+            new URL(config.getProperty("appiumServerUrl")), options);
+
+        driver.manage().timeouts()
+              .implicitlyWait(Duration.ofSeconds(0));
+    }
+
+    // TASK 2: POM-style login actions
+    private void enterUsername(String username) {
+        waitForElementVisible(
+            By.id(config.getProperty("usernameId")))
+            .sendKeys(username);
+    }
+
+    private void enterPassword(String password) {
+        waitForElementVisible(
+            By.id(config.getProperty("passwordId")))
+            .sendKeys(password);
+    }
+
+    private void tapLoginButton() {
+        waitForElementVisible(
+            By.id(config.getProperty("loginButtonId")))
+            .click();
+    }
+
+    private void login(String username, String password) {
+        enterUsername(username);
+        enterPassword(password);
+        tapLoginButton();
+    }
+
+    // TASK 3: Reusable explicit wait utility
+    private WebElement waitForElementVisible(By locator) {
+        WebDriverWait wait =
+            new WebDriverWait(driver, Duration.ofSeconds(15));
+
+        return wait.until(
+            ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    // TASK 4: Read multiple credential sets from Excel
+    @DataProvider(name = "loginData")
+    public Object[][] getLoginData() throws Exception {
+
+        List<Object[]> data = new ArrayList<>();
+
+        try (InputStream input = getClass().getClassLoader()
+                .getResourceAsStream("testdata/LoginData.xlsx")) {
+
+            if (input == null) {
+                throw new RuntimeException(
+                    "LoginData.xlsx file not found");
+            }
+
+            try (Workbook workbook = new XSSFWorkbook(input)) {
+
+                Sheet sheet = workbook.getSheetAt(0);
+                DataFormatter formatter = new DataFormatter();
+
+                // First row contains headings.
+                for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                    Row row = sheet.getRow(i);
+
+                    if (row == null) {
+                        continue;
+                    }
+
+                    String username =
+                        formatter.formatCellValue(row.getCell(0));
+                    String password =
+                        formatter.formatCellValue(row.getCell(1));
+                    String expected =
+                        formatter.formatCellValue(row.getCell(2));
+
+                    if (username.isBlank() && password.isBlank()
+                            && expected.isBlank()) {
+                        continue;
+                    }
+
+                    data.add(new Object[] {
+                        username, password, expected
+                    });
+                }
+            }
+        }
+
+        return data.toArray(new Object[0][]);
+    }
+
+    // TASK 4: Execute login test for each Excel row
+    @Test(dataProvider = "loginData")
+    public void verifyLogin(String username, String password,
+                            String expectedResult) {
+
+        login(username, password);
+
+        if (expectedResult.equalsIgnoreCase("SUCCESS")) {
+
+            Assert.assertTrue(
+                waitForElementVisible(
+                    By.id(config.getProperty("homeScreenId")))
+                    .isDisplayed(),
+                "Home screen should appear after successful login.");
+
+        } else if (expectedResult.equalsIgnoreCase("FAILURE")) {
+
+            Assert.assertTrue(
+                waitForElementVisible(
+                    By.id(config.getProperty("errorMessageId")))
+                    .isDisplayed(),
+                "Error message should appear for invalid credentials.");
+
+        } else {
+            Assert.fail("Invalid expectedResult in Excel: "
+                        + expectedResult);
+        }
+    }
+
+    // TASK 5: Quit driver after every test invocation
+    @AfterMethod(alwaysRun = true)
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+            driver = null;
+        }
+    }
+}
