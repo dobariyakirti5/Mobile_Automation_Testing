@@ -1,0 +1,8 @@
+Feature	Native App	Hybrid App	Web App
+Definition	Developed specifically for a mobile operating system.	Combines web technologies with a native app container.	Runs in a mobile web browser.
+Technology	Java/Kotlin for Android, Swift for iOS.	HTML, CSS, JavaScript with native components.	HTML, CSS, JavaScript.
+Installation	Installed from an app store.	Usually installed from an app store.	Opened through a browser; usually no installation required.
+Performance	Generally fast and responsive.	Depends on the implementation and web content.	Depends on the browser and website.
+Device Features	Can access camera, GPS, and other device features.	Can access device features through native APIs or plugins.	Access is limited by browser support and permissions.
+Internet	Some features can work offline.	Some features can work offline.	Usually requires internet, depending on the website.
+Example	Instagram mobile app.	An app built using Ionic with embedded web content.	Flipkart website opened in Chrome.
