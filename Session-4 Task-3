@@ -1,0 +1,17 @@
+Task 3: Click the login button in a Flipkart clone app:-
+
+
+import org.openqa.selenium.By;
+driver.findElement(
+    By.id("com.example.flipkartclone:id/username")
+).sendKeys("testuser@example.com");
+
+driver.findElement(
+    By.id("com.example.flipkartclone:id/password")
+).sendKeys("TestPassword123");
+
+driver.findElement(
+    By.id("com.example.flipkartclone:id/loginButton")
+).click();
+
+System.out.println("Login button clicked.");
