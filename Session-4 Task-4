@@ -1,0 +1,15 @@
+Task 4: Clear pre-filled username text before entering new data:-
+
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+WebElement usernameField = driver.findElement(
+    By.id("com.example.flipkartclone:id/username")
+);
+
+usernameField.clear();
+
+usernameField.sendKeys("newuser@example.com");
+
+System.out.println("Username cleared and new value entered.");
