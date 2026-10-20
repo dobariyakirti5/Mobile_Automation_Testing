@@ -1,0 +1,47 @@
+Task 4: Perform a multi-touch pinch-to-zoom gesture:-
+
+
+import java.time.Duration;
+import java.util.Arrays;
+import org.openqa.selenium.interactions.PointerInput;
+import org.openqa.selenium.interactions.Sequence;
+import io.appium.java_client.android.AndroidDriver;
+
+public class MapPinchZoomTest {
+    public static void zoomIn(AndroidDriver driver) {
+
+        // Starting positions: two fingers close together.
+        PointerInput finger1 = new PointerInput(
+            PointerInput.Kind.TOUCH, "finger1");
+        PointerInput finger2 = new PointerInput(
+            PointerInput.Kind.TOUCH, "finger2");
+
+        Sequence touch1 = new Sequence(finger1, 0);
+        touch1.addAction(finger1.createPointerMove(
+            Duration.ZERO,
+            PointerInput.Origin.viewport(), 400, 700));
+        touch1.addAction(finger1.createPointerDown(
+            PointerInput.MouseButton.LEFT.asArg()));
+        touch1.addAction(finger1.createPointerMove(
+            Duration.ofMillis(700),
+            PointerInput.Origin.viewport(), 250, 550));
+        touch1.addAction(finger1.createPointerUp(
+            PointerInput.MouseButton.LEFT.asArg()));
+
+        Sequence touch2 = new Sequence(finger2, 0);
+        touch2.addAction(finger2.createPointerMove(
+            Duration.ZERO,
+            PointerInput.Origin.viewport(), 450, 750));
+        touch2.addAction(finger2.createPointerDown(
+            PointerInput.MouseButton.LEFT.asArg()));
+        touch2.addAction(finger2.createPointerMove(
+            Duration.ofMillis(700),
+            PointerInput.Origin.viewport(), 600, 900));
+        touch2.addAction(finger2.createPointerUp(
+            PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(Arrays.asList(touch1, touch2));
+
+        System.out.println("Pinch-to-zoom gesture performed.");
+    }
+}
