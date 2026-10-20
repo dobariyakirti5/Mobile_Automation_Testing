@@ -1,0 +1,11 @@
+1. Start Appium Server in CMD:
+appium
+
+Json:-
+{
+  "platformName": "Android",
+  "appium:automationName": "UiAutomator2",
+  "appium:deviceName": "Android Device",
+  "appium:appPackage": "com.android.settings",
+  "appium:appActivity": ".Settings"
+}
