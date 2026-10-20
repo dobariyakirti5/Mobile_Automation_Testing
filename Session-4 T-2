@@ -1,0 +1,35 @@
+Task 2: Enter a mock username and password in the Zomato login screen:-
+
+
+import java.net.URL;
+import org.openqa.selenium.By;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import io.appium.java_client.android.AndroidDriver;
+
+public class ZomatoLoginTest {
+    public static void main(String[] args) throws Exception {
+
+        DesiredCapabilities caps = new DesiredCapabilities();
+        caps.setCapability("platformName", "Android");
+        caps.setCapability("appium:automationName", "UiAutomator2");
+        caps.setCapability("appium:deviceName", "Android Device");
+        caps.setCapability("appium:appPackage", "REPLACE_WITH_PACKAGE");
+        caps.setCapability("appium:appActivity", "REPLACE_WITH_ACTIVITY");
+
+        AndroidDriver driver = new AndroidDriver(
+            new URL("http://127.0.0.1:4723"), caps
+        );
+
+        driver.findElement(
+            By.id("REPLACE_WITH_USERNAME_FIELD_ID")
+        ).sendKeys("testuser@example.com");
+
+        driver.findElement(
+            By.id("REPLACE_WITH_PASSWORD_FIELD_ID")
+        ).sendKeys("TestPassword123");
+
+        System.out.println("Test credentials entered.");
+
+        driver.quit();
+    }
+}
