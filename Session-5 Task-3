@@ -1,0 +1,23 @@
+Task 3: Enter a chat message, hide the keyboard, and retrieve the text:-
+
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import io.appium.java_client.android.AndroidDriver;
+
+public class ChatMessageTest {
+    public static void enterMessage(AndroidDriver driver) {
+
+        WebElement messageField = driver.findElement(
+            By.id("com.example.chat:id/messageInput")
+        );
+
+        messageField.sendKeys("Hello, how are you?");
+
+        driver.hideKeyboard();
+
+        String message = messageField.getText();
+
+        System.out.println("Entered message: " + message);
+    }
+}
