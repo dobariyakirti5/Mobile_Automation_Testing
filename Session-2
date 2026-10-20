@@ -1,0 +1,27 @@
+
+:: 1. Verify Java and JAVA_HOME
+java -version
+echo %JAVA_HOME%
+
+:: 2. Verify Android ADB
+adb --version
+adb devices
+
+:: 3. Verify Node.js and npm
+node -v
+npm -v
+
+:: 4. Install Appium Server
+npm install -g appium
+
+:: 5. Verify Appium installation
+appium -v
+
+:: 6. Install Android automation driver
+appium driver install uiautomator2
+
+:: 7. Verify installed Appium drivers
+appium driver list --installed
+
+:: 8. Start Appium Server
+appium
