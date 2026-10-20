@@ -1,0 +1,33 @@
+Task 1: Enter a wrong password and verify the error message:-
+
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import io.appium.java_client.android.AndroidDriver;
+
+public class LoginErrorTest {
+    public static void verifyLoginError(AndroidDriver driver) {
+
+        driver.findElement(
+            By.id("com.example.app:id/username")
+        ).sendKeys("testuser@example.com");
+
+        driver.findElement(
+            By.id("com.example.app:id/password")
+        ).sendKeys("WrongPassword123");
+
+        driver.findElement(
+            By.id("com.example.app:id/loginButton")
+        ).click();
+
+        WebElement errorMessage = driver.findElement(
+            By.id("com.example.app:id/errorMessage")
+        );
+
+        if (errorMessage.isDisplayed()) {
+            System.out.println("PASS: Error message is displayed.");
+        } else {
+            System.out.println("FAIL: Error message is not displayed.");
+        }
+    }
+}
